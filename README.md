@@ -4,9 +4,9 @@ A neat script to mercilessly hack Codeforces C++ sources during contests
 ![alt text](https://github.com/MoonfireSeco/Kerman/raw/master/Example.png)
 
 Dependencies:
-It should work for both Python 2 and Python 3.
 - pip install bs4
 - pip install colorama
+It should work for both Python 2 and Python 3.
 
 Usage:
 > Kerman.py -c \<ContestID\> -p \<ProblemLetter\> -s \<StartPage\> -e \<EndPage\>
