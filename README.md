@@ -7,7 +7,8 @@ It should work for both Python 2 and Python 3.
 - pip install colorama
 
 Usage:
-> Kerman.py -c <ContestID> -p <ProblemLetter> -s <StartPage> -e <EndPage>
+> Kerman.py -c \<ContestID\> -p \<ProblemLetter\> -s \<StartPage\> -e \<EndPage\>
+
 Example:
 > Kerman.py -c 1059 -p C -s 1 -e 10
 To run through pages 1 to 10, testing the problem C from the contest with ID 1059.
