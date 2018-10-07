@@ -11,6 +11,7 @@ Usage:
 
 Example:
 > Kerman.py -c 1059 -p C -s 1 -e 10
+
 To run through pages 1 to 10, testing the problem C from the contest with ID 1059.
 
 There are 3 important files generated for Kerman: **TestGen.cpp, Correct.cpp and Config.txt**
