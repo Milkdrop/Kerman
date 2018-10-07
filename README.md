@@ -6,6 +6,7 @@ A neat script to mercilessly hack Codeforces C++ sources during contests
 Dependencies:
 
 It should work for both Python 2 and Python 3.
+- pip install requests
 - pip install bs4
 - pip install colorama
 
