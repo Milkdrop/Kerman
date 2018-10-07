@@ -1,4 +1,4 @@
-# KermanCodeforcesAutoHack
+# Kerman Auto Hack
 A neat script to mercilessly hack Codeforces C++ sources during contests
 
 ![alt text](https://github.com/MoonfireSeco/Kerman/raw/master/Example.png)
