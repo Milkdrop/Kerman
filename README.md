@@ -1,7 +1,7 @@
 # KermanCodeforcesAutoHack
 A neat script to mercilessly hack Codeforces C++ sources during contests
 
-![alt text](https://raw.githubusercontent.com/MoonfireSeco/Kerman/Example.png)
+![alt text](https://github.com/MoonfireSeco/Kerman/raw/master/Example.png)
 
 Dependencies:
 It should work for both Python 2 and Python 3.
