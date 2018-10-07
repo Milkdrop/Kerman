@@ -7,6 +7,7 @@ Dependencies:
 
 It should work for both Python 2 and Python 3.
 - pip install requests
+- pip install psutil
 - pip install bs4
 - pip install colorama
 
