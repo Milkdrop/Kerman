@@ -56,12 +56,25 @@ def exit_handler():
 	
 atexit.register(exit_handler)
 #CHECK ARGS
-if (len(argv) != 9):
-	PrintInfo ("Usage: Kerman.py -c <ContestID> -p <ProblemLetter> -s <StartPage> -e <EndPage>")
-	sys.exit(2)
+CID = -1
+PN = -1
+StartPage = 1
+EndPage = 10
 
-for arg in range(1, 9, 2):
-	if (argv[arg] == "-c"):
+BatteringRam = False
+ShowHelp = False
+PoisonRun = False
+
+for arg in range(1, len(argv), 2):
+	if (argv[arg] == "--help"):
+		ShowHelp = True
+	elif (argv[arg] == "-h"):
+		ShowHelp = True
+	elif (argv[arg] == "--BatteringRam"):
+		BatteringRam = True
+	elif (argv[arg] == "--PoisonRun"):
+		PoisonRun = True
+	elif (argv[arg] == "-c"):
 		CID = argv[arg + 1]
 	elif (argv[arg] == "-p"):
 		PN = argv[arg + 1]
@@ -70,9 +83,13 @@ for arg in range(1, 9, 2):
 	elif (argv[arg] == "-e"):
 		EndPage = int(argv[arg + 1])
 	else:
-		PrintInfo ("Usage: Kerman.py -c <ContestID> -p <ProblemLetter> -s <StartPage> -e <EndPage>")
+		PrintInfo ("Usage: Kerman.py [-c <ContestID>] [-p <ProblemLetter>]")
 		sys.exit(2)
 
+if (ShowHelp or PN == -1 or CID == -1):
+	PrintInfo ("Usage: Kerman.py [-c <ContestID>] [-p <ProblemLetter>] [-s <StartPage>] [-e <EndPage>] [--BatteringRam / -B]")
+	sys.exit(0)
+	
 #GET CONFIGS
 Blacklist = {}
 TestCnt = 500
@@ -125,14 +142,28 @@ except:
 	PrintError ("No TestGen.cpp file found! Exiting.")
 	sys.exit(2)
 
+if (BatteringRam):
+	try:
+		suspect = open("Suspect.cpp", "r")
+	except:
+		PrintError ("No Suspect.cpp file to test in Battering Ram mode!")
+		sys.exit(2)
+
+if (PoisonRun):
+	if (PoisonCount == 0):
+		PrintError ("You have no poisons!")
+		sys.exit(2)
+
 #FANCY INTRO
 PrintFancy ("KKKKKKKKK    KKKKKKK\nK:::::::K    K:::::K\nK:::::::K    K:::::K\nK:::::::K   K::::::K\nKK::::::K  K:::::KKK    eeeeeeeeeeee    rrrrr   rrrrrrrrr      mmmmmmm    mmmmmmm     aaaaaaaaaaaaa  nnnn  nnnnnnnn\n  K:::::K K:::::K     ee::::::::::::ee  r::::rrr:::::::::r   mm:::::::m  m:::::::mm   a::::::::::::a n:::nn::::::::nn\n  K::::::K:::::K     e::::::eeeee:::::eer:::::::::::::::::r m::::::::::mm::::::::::m  aaaaaaaaa:::::an::::::::::::::nn\n  K:::::::::::K     e::::::e     e:::::err::::::rrrrr::::::rm::::::::::::::::::::::m           a::::ann:::::::::::::::n\n  K:::::::::::K     e:::::::eeeee::::::e r:::::r     r:::::rm:::::mmm::::::mmm:::::m    aaaaaaa:::::a  n:::::nnnn:::::n\n  K::::::K:::::K    e:::::::::::::::::e  r:::::r     rrrrrrrm::::m   m::::m   m::::m  aa::::::::::::a  n::::n    n::::n\n  K:::::K K:::::K   e::::::eeeeeeeeeee   r:::::r            m::::m   m::::m   m::::m a::::aaaa::::::a  n::::n    n::::n\nKK::::::K  K:::::KKKe:::::::e            r:::::r            m::::m   m::::m   m::::ma::::a    a:::::a  n::::n    n::::n\nK:::::::K   K::::::Ke::::::::e           r:::::r            m::::m   m::::m   m::::ma::::a    a:::::a  n::::n    n::::n\nK:::::::K    K:::::K e::::::::eeeeeeee   r:::::r            m::::m   m::::m   m::::ma:::::aaaa::::::a  n::::n    n::::n\nK:::::::K    K:::::K  ee:::::::::::::e   r:::::r            m::::m   m::::m   m::::m a::::::::::aa:::a n::::n    n::::n\nKKKKKKKKK    KKKKKKK    eeeeeeeeeeeeee   rrrrrrr            mmmmmm   mmmmmm   mmmmmm  aaaaaaaaaa  aaaa nnnnnn    nnnnnn")
 print ("\n                                                       " + Fore.WHITE + "AUTO HACK v2.1")
 print ("                                                Made by " + Fore.CYAN + "Loona " + Fore.WHITE + "& " + Fore.MAGENTA + "PinkiePie1189\n")
 
 PrintWarn ("Make sure the Correct.cpp file is up to date")
+if (BatteringRam):
+	PrintOK ("KERMAN IS CURRENTLY RUNNING IN " + Fore.RED + "BATTERING RAM" + Fore.WHITE + " MODE.")
 PrintOK ("NOW LET'S GET TO " + Fore.GREEN + "WORK" + Fore.WHITE + '\n')
-
+	
 headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.62 Safari/537.36'}
 FNULL = open(os.devnull, 'w')
 random.seed(time.time())
@@ -197,6 +228,55 @@ except:
 					
 			cnt += 1
 
+if (BatteringRam):
+	cor = subprocess.Popen("g++ -static -DONLINE_JUDGE -lm -s -x c++ -Wl,--stack=268435456 -O1 -std=c++11 -D__USE_MINGW_ANSI_STDIO=0 Correct.cpp -o Correct", stdout=FNULL, stderr=FNULL)
+	cor.wait()
+	sus = subprocess.Popen("g++ -static -DONLINE_JUDGE -lm -s -x c++ -Wl,--stack=268435456 -O1 -std=c++11 -D__USE_MINGW_ANSI_STDIO=0 Suspect.cpp -o Suspect", stdout=FNULL, stderr=FNULL)
+	sus.wait()
+	check = False
+	
+	#RUN POISONS
+	for k in range (PoisonCount):
+		if (check):
+			break
+		os.system("(Correct < Poisons/" + str(CID) + str(PN) + "/Poison" + str(k+1) + ") > CorrectOut")
+		os.system("(Suspect < Poisons/" + str(CID) + str(PN) + "/Poison" + str(k+1) + ") > SuspectOut")
+		Correct = open("CorrectOut", "r").read().strip()
+		Suspect = open("SuspectOut", "r").read().strip()
+				
+		if (Correct != Suspect and len(Correct) != 0 and len(Suspect) != 0):
+			PrintOK ("FOUND MISMATCH ON POISON FILE " + str(k+1))
+			input("Press Enter to continue...")
+			check = True
+				
+	k = 0
+	while True:
+		if (check):
+			break
+		if ((k + 1) % 100 == 0):
+			PrintInfo (str(k + 1) + " TESTS PASSED.")
+					
+		os.system("(TestGen " + str(random.randint(0, 5000000)) + ") > Test")
+		os.system("(Correct < Test) > CorrectOut")
+		os.system("(Suspect < Test) > SuspectOut")
+				
+		Correct = open("CorrectOut", "r").read().strip()
+		Suspect = open("SuspectOut", "r").read().strip()
+				
+		if (Correct != Suspect and len(Correct) != 0 and len(Suspect) != 0):
+			PrintOK ("FOUND MISMATCH. CHECK TEST FILE.")
+			check = True
+					
+			a = ''
+			while (a.lower() != 'y' and a.lower() != 'n'):
+				a = input("Would you like to add current test to the poison list? (y/n) ")
+					
+			if (a.lower() == 'y'):
+				PoisonCount += 1
+				copyfile("Test", "Poisons/" + str(CID) + str(PN) + "/Poison" + str(PoisonCount))
+				
+		k += 1
+					
 #START SUSPECT SEARCH
 for Page in range(StartPage, EndPage+1):
 	PrintInfo ("NOW ON PAGE " + str(Page))
@@ -267,30 +347,31 @@ for Page in range(StartPage, EndPage+1):
 					PrintOK ("FOUND MISMATCH ON POISON FILE " + str(k+1))
 					input("Press Enter to continue...")
 					check = True
-				
-			for k in range (TestCnt):
-				if (check):
-					break
-				if ((k + 1) % 100 == 0):
-					PrintInfo (str(k + 1) + " TESTS PASSED.")
 					
-				os.system("(TestGen " + str(random.randint(0, 5000000)) + ") > Test")
-				os.system("(Correct < Test) > CorrectOut")
-				os.system("(Suspect < Test) > SuspectOut")
-				
-				Correct = open("CorrectOut", "r").read().strip()
-				Suspect = open("SuspectOut", "r").read().strip()
-				
-				if (Correct != Suspect and len(Correct) != 0 and len(Suspect) != 0):
-					PrintOK ("FOUND MISMATCH. CHECK TEST FILE.")
-					check = True
+			if (PoisonRun == False):
+				for k in range (TestCnt):
+					if (check):
+						break
+					if ((k + 1) % 100 == 0):
+						PrintInfo (str(k + 1) + " TESTS PASSED.")
+						
+					os.system("(TestGen " + str(random.randint(0, 5000000)) + ") > Test")
+					os.system("(Correct < Test) > CorrectOut")
+					os.system("(Suspect < Test) > SuspectOut")
 					
-					a = ''
-					while (a.lower() != 'y' and a.lower() != 'n'):
-						a = input("Would you like to add current test to the poison list? (y/n) ")
+					Correct = open("CorrectOut", "r").read().strip()
+					Suspect = open("SuspectOut", "r").read().strip()
 					
-					if (a.lower() == 'y'):
-						PoisonCount += 1
-						copyfile("Test", "Poisons/" + str(CID) + str(PN) + "/Poison" + str(PoisonCount))
+					if (Correct != Suspect and len(Correct) != 0 and len(Suspect) != 0):
+						PrintOK ("FOUND MISMATCH. CHECK TEST FILE.")
+						check = True
+						
+						a = ''
+						while (a.lower() != 'y' and a.lower() != 'n'):
+							a = input("Would you like to add current test to the poison list? (y/n) ")
+						
+						if (a.lower() == 'y'):
+							PoisonCount += 1
+							copyfile("Test", "Poisons/" + str(CID) + str(PN) + "/Poison" + str(PoisonCount))
 			
 		cnt += 1
