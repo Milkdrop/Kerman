@@ -34,9 +34,9 @@ def PrintInfo (string):
 	print (Fore.WHITE + "[ " + Fore.CYAN + "INFO" + Fore.WHITE + " ] " + string)
 	
 def exit_handler():
-	PrintInfo ("Cleaning up...")
-	try: os.remove("Suspect.cpp")
-	except: pass
+	if (NeedToCleanUp):
+		PrintInfo ("Cleaning up...")
+	
 	try: os.remove("SuspectOut")
 	except: pass
 	try: os.remove("CorrectOut")
@@ -55,7 +55,9 @@ def exit_handler():
 	except: pass
 	
 atexit.register(exit_handler)
+
 #CHECK ARGS
+NeedToCleanUp = False
 CID = -1
 PN = -1
 StartPage = 1
@@ -65,8 +67,11 @@ BatteringRam = False
 ShowHelp = False
 PoisonRun = False
 
-for arg in range(1, len(argv), 2):
+arg = 1
+while arg < len(argv):
 	if (argv[arg] == "--help"):
+		ShowHelp = True
+	elif (argv[arg] == "help"):
 		ShowHelp = True
 	elif (argv[arg] == "-h"):
 		ShowHelp = True
@@ -76,18 +81,32 @@ for arg in range(1, len(argv), 2):
 		PoisonRun = True
 	elif (argv[arg] == "-c"):
 		CID = argv[arg + 1]
+		arg += 1
 	elif (argv[arg] == "-p"):
 		PN = argv[arg + 1]
+		arg += 1
 	elif (argv[arg] == "-s"):
 		StartPage = int(argv[arg + 1])
+		arg += 1
 	elif (argv[arg] == "-e"):
 		EndPage = int(argv[arg + 1])
+		arg += 1
 	else:
-		PrintInfo ("Usage: Kerman.py [-c <ContestID>] [-p <ProblemLetter>]")
-		sys.exit(2)
+		PrintError ("Unknown Option: " + argv[arg])
+		ShowHelp = True
+	arg += 1
 
-if (ShowHelp or PN == -1 or CID == -1):
-	PrintInfo ("Usage: Kerman.py [-c <ContestID>] [-p <ProblemLetter>] [-s <StartPage>] [-e <EndPage>] [--BatteringRam / -B]")
+if ((ShowHelp) or ((CID == -1 or PN == -1) and BatteringRam == False)):
+	print ("""Usage: Kerman.py [-c <ContestID>] [-p <ProblemLetter>]
+	
+Options:	-c: The Contest ID to analyze (1033, 1056, ...)
+		-p: The Problem Letter to analyze (A, B, C, D, ...)
+		-s: The page on which to start the analysis (1, 2, 3, ...)
+		-e: The page on which to end the analysis (10, 11, 12, ...)
+		-h/--help: Show this help message
+		--BatteringRam: Attack a single, user-given, Suspect.cpp file until it breaks
+		--PoisonRun: Iterate through all the submissions while only testing for Poison files\n""")
+	
 	sys.exit(0)
 	
 #GET CONFIGS
@@ -143,6 +162,7 @@ except:
 	sys.exit(2)
 
 if (BatteringRam):
+	PoisonRun = False
 	try:
 		suspect = open("Suspect.cpp", "r")
 	except:
@@ -151,23 +171,27 @@ if (BatteringRam):
 
 if (PoisonRun):
 	if (PoisonCount == 0):
-		PrintError ("You have no poisons!")
+		PrintError ("You have no Poison files!")
 		sys.exit(2)
 
 #FANCY INTRO
-PrintFancy ("KKKKKKKKK    KKKKKKK\nK:::::::K    K:::::K\nK:::::::K    K:::::K\nK:::::::K   K::::::K\nKK::::::K  K:::::KKK    eeeeeeeeeeee    rrrrr   rrrrrrrrr      mmmmmmm    mmmmmmm     aaaaaaaaaaaaa  nnnn  nnnnnnnn\n  K:::::K K:::::K     ee::::::::::::ee  r::::rrr:::::::::r   mm:::::::m  m:::::::mm   a::::::::::::a n:::nn::::::::nn\n  K::::::K:::::K     e::::::eeeee:::::eer:::::::::::::::::r m::::::::::mm::::::::::m  aaaaaaaaa:::::an::::::::::::::nn\n  K:::::::::::K     e::::::e     e:::::err::::::rrrrr::::::rm::::::::::::::::::::::m           a::::ann:::::::::::::::n\n  K:::::::::::K     e:::::::eeeee::::::e r:::::r     r:::::rm:::::mmm::::::mmm:::::m    aaaaaaa:::::a  n:::::nnnn:::::n\n  K::::::K:::::K    e:::::::::::::::::e  r:::::r     rrrrrrrm::::m   m::::m   m::::m  aa::::::::::::a  n::::n    n::::n\n  K:::::K K:::::K   e::::::eeeeeeeeeee   r:::::r            m::::m   m::::m   m::::m a::::aaaa::::::a  n::::n    n::::n\nKK::::::K  K:::::KKKe:::::::e            r:::::r            m::::m   m::::m   m::::ma::::a    a:::::a  n::::n    n::::n\nK:::::::K   K::::::Ke::::::::e           r:::::r            m::::m   m::::m   m::::ma::::a    a:::::a  n::::n    n::::n\nK:::::::K    K:::::K e::::::::eeeeeeee   r:::::r            m::::m   m::::m   m::::ma:::::aaaa::::::a  n::::n    n::::n\nK:::::::K    K:::::K  ee:::::::::::::e   r:::::r            m::::m   m::::m   m::::m a::::::::::aa:::a n::::n    n::::n\nKKKKKKKKK    KKKKKKK    eeeeeeeeeeeeee   rrrrrrr            mmmmmm   mmmmmm   mmmmmm  aaaaaaaaaa  aaaa nnnnnn    nnnnnn")
-print ("\n                                                       " + Fore.WHITE + "AUTO HACK v2.1")
+PrintFancy ("""KKKKKKKKK    KKKKKKK\nK:::::::K    K:::::K\nK:::::::K    K:::::K\nK:::::::K   K::::::K\nKK::::::K  K:::::KKK    eeeeeeeeeeee    rrrrr   rrrrrrrrr      mmmmmmm    mmmmmmm     aaaaaaaaaaaaa  nnnn  nnnnnnnn\n  K:::::K K:::::K     ee::::::::::::ee  r::::rrr:::::::::r   mm:::::::m  m:::::::mm   a::::::::::::a n:::nn::::::::nn\n  K::::::K:::::K     e::::::eeeee:::::eer:::::::::::::::::r m::::::::::mm::::::::::m  aaaaaaaaa:::::an::::::::::::::nn\n  K:::::::::::K     e::::::e     e:::::err::::::rrrrr::::::rm::::::::::::::::::::::m           a::::ann:::::::::::::::n\n  K:::::::::::K     e:::::::eeeee::::::e r:::::r     r:::::rm:::::mmm::::::mmm:::::m    aaaaaaa:::::a  n:::::nnnn:::::n\n  K::::::K:::::K    e:::::::::::::::::e  r:::::r     rrrrrrrm::::m   m::::m   m::::m  aa::::::::::::a  n::::n    n::::n\n  K:::::K K:::::K   e::::::eeeeeeeeeee   r:::::r            m::::m   m::::m   m::::m a::::aaaa::::::a  n::::n    n::::n\nKK::::::K  K:::::KKKe:::::::e            r:::::r            m::::m   m::::m   m::::ma::::a    a:::::a  n::::n    n::::n\nK:::::::K   K::::::Ke::::::::e           r:::::r            m::::m   m::::m   m::::ma::::a    a:::::a  n::::n    n::::n\nK:::::::K    K:::::K e::::::::eeeeeeee   r:::::r            m::::m   m::::m   m::::ma:::::aaaa::::::a  n::::n    n::::n\nK:::::::K    K:::::K  ee:::::::::::::e   r:::::r            m::::m   m::::m   m::::m a::::::::::aa:::a n::::n    n::::n\nKKKKKKKKK    KKKKKKK    eeeeeeeeeeeeee   rrrrrrr            mmmmmm   mmmmmm   mmmmmm  aaaaaaaaaa  aaaa nnnnnn    nnnnnn""")
+print ("\n                                                       " + Fore.WHITE + "AUTO HACK v2.2")
 print ("                                                Made by " + Fore.CYAN + "Loona " + Fore.WHITE + "& " + Fore.MAGENTA + "PinkiePie1189\n")
 
-PrintWarn ("Make sure the Correct.cpp file is up to date")
 if (BatteringRam):
 	PrintOK ("KERMAN IS CURRENTLY RUNNING IN " + Fore.RED + "BATTERING RAM" + Fore.WHITE + " MODE.")
+	
+if (PoisonRun):
+	PrintOK ("KERMAN IS CURRENTLY RUNNING IN " + Fore.MAGENTA + "POISON RUN" + Fore.WHITE + " MODE.")
+	
 PrintOK ("NOW LET'S GET TO " + Fore.GREEN + "WORK" + Fore.WHITE + '\n')
 	
 headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.62 Safari/537.36'}
 FNULL = open(os.devnull, 'w')
 random.seed(time.time())
 
+NeedToCleanUp = True
 #CORRECT CPP SEARCH
 try:
 	open("Correct.cpp", "r")
@@ -264,19 +288,16 @@ if (BatteringRam):
 		Suspect = open("SuspectOut", "r").read().strip()
 				
 		if (Correct != Suspect and len(Correct) != 0 and len(Suspect) != 0):
-			PrintOK ("FOUND MISMATCH. CHECK TEST FILE.")
+			PoisonCount += 1
+			copyfile("Test", "Poisons/" + str(CID) + str(PN) + "/Poison" + str(PoisonCount))
+			PrintOK ("FOUND MISMATCH. CHECK NEW POISON FILE: " + str(PoisonCount))
+			input("Press Enter to continue...")
+			
 			check = True
-					
-			a = ''
-			while (a.lower() != 'y' and a.lower() != 'n'):
-				a = input("Would you like to add current test to the poison list? (y/n) ")
-					
-			if (a.lower() == 'y'):
-				PoisonCount += 1
-				copyfile("Test", "Poisons/" + str(CID) + str(PN) + "/Poison" + str(PoisonCount))
-				
 		k += 1
-					
+	
+	sys.exit(0)
+	
 #START SUSPECT SEARCH
 for Page in range(StartPage, EndPage+1):
 	PrintInfo ("NOW ON PAGE " + str(Page))
@@ -289,6 +310,7 @@ for Page in range(StartPage, EndPage+1):
 	
 	EntryCount = len(IDData)
 	cnt = 0
+	
 	for i in range(EntryCount):
 		if (len(NameData[cnt].text.split()) == 2):
 			Name = NameData[cnt].text.split()[1]
@@ -347,7 +369,8 @@ for Page in range(StartPage, EndPage+1):
 					PrintOK ("FOUND MISMATCH ON POISON FILE " + str(k+1))
 					input("Press Enter to continue...")
 					check = True
-					
+			
+			#RUN RANDOM TESTS
 			if (PoisonRun == False):
 				for k in range (TestCnt):
 					if (check):
@@ -363,15 +386,9 @@ for Page in range(StartPage, EndPage+1):
 					Suspect = open("SuspectOut", "r").read().strip()
 					
 					if (Correct != Suspect and len(Correct) != 0 and len(Suspect) != 0):
-						PrintOK ("FOUND MISMATCH. CHECK TEST FILE.")
+						PoisonCount += 1
+						copyfile("Test", "Poisons/" + str(CID) + str(PN) + "/Poison" + str(PoisonCount))
+						PrintOK ("FOUND MISMATCH. CHECK NEW POISON FILE " + str(PoisonCount))
+						input("Press Enter to continue...")
 						check = True
-						
-						a = ''
-						while (a.lower() != 'y' and a.lower() != 'n'):
-							a = input("Would you like to add current test to the poison list? (y/n) ")
-						
-						if (a.lower() == 'y'):
-							PoisonCount += 1
-							copyfile("Test", "Poisons/" + str(CID) + str(PN) + "/Poison" + str(PoisonCount))
-			
 		cnt += 1
