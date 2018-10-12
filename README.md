@@ -33,6 +33,6 @@ It should work for both Python 2 and Python 3.
 
 There are 2 important files generated for Kerman: **TestGen.cpp and Config.txt**
 
-- Config.txt: Can store some neat options like the number of tests to run on a submission before declaring it unhackable.
-
 - TestGen.cpp: A C++ Source file that should be edited by the user. It's compiled automatically, and it's used to generate random valid tests for the current problem.
+
+- Config.txt: Can store some neat options like the number of tests to run on a submission before declaring it unhackable.
