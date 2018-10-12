@@ -19,6 +19,11 @@ Example:
 
 To run through pages 1 to 10, testing the problem C from the contest with ID 1059.
 
+The -u option allows Kerman to login into your account and upload the hacks found directly, **without** the need of any user interaction. Example:
+> Kerman.py -c 1059 -p C -u TestUser
+
+You will then be prompted for the password.
+
 There are 3 important files generated for Kerman: **TestGen.cpp, Correct.cpp and Config.txt**
 
 - Config.txt: Can store some neat options like the number of tests to run on a submission before declaring it unhackable.
