@@ -11,18 +11,17 @@ It should work for both Python 2 and Python 3.
 - pip install bs4
 - pip install colorama
 
-Usage:
-> Kerman.py -c \<ContestID\> -p \<ProblemLetter\> -s \<StartPage\> -e \<EndPage\>
-
-Example:
-> Kerman.py -c 1059 -p C -s 1 -e 10
-
-To run through pages 1 to 10, testing the problem C from the contest with ID 1059.
-
-The -u option allows Kerman to login into your account and upload the hacks found directly, **without** the need of any user interaction. Example:
-> Kerman.py -c 1059 -p C -u TestUser
-
-You will then be prompted for the password.
+Usage: Kerman.py [-c <ContestID>] [-p <ProblemLetter>]
+	
+Options:
+    -c: The Contest ID to analyze (1033, 1056, ...)
+		-p: The Problem Letter to analyze (A, B, C, D, ...)
+		-s: The page on which to start the analysis (1, 2, 3, ...)
+		-e: The page on which to end the analysis (10, 11, 12, ...)
+		-u: Login with an username (for automatic hack uploading). You will be prompted for the password
+		-h/--help: Show this help message
+		--BatteringRam: Attack a single, user-given, Suspect.cpp file until it breaks
+		--PoisonRun: Iterate through all the submissions while only testing for Poison files
 
 There are 3 important files generated for Kerman: **TestGen.cpp, Correct.cpp and Config.txt**
 
