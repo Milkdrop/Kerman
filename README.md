@@ -11,11 +11,10 @@ It should work for both Python 2 and Python 3.
 - pip install bs4
 - pip install colorama
 
-Usage: Kerman.py [-c <ContestID>] [-p <ProblemLetter>]
 	
-    Options:
+	    Options:
 
-    		-c: The Contest ID to analyze (1033, 1056, ...)
+    	-c: The Contest ID to analyze (1033, 1056, ...)
     
 		-p: The Problem Letter to analyze (A, B, C, D, ...)
 		
