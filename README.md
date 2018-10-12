@@ -14,14 +14,23 @@ It should work for both Python 2 and Python 3.
 Usage: Kerman.py [-c <ContestID>] [-p <ProblemLetter>]
 	
 Options:
+
     -c: The Contest ID to analyze (1033, 1056, ...)
+    
 		-p: The Problem Letter to analyze (A, B, C, D, ...)
+		
 		-s: The page on which to start the analysis (1, 2, 3, ...)
+		
 		-e: The page on which to end the analysis (10, 11, 12, ...)
+		
 		-u: Login with an username (for automatic hack uploading). You will be prompted for the password
+		
 		-h/--help: Show this help message
+		
 		--BatteringRam: Attack a single, user-given, Suspect.cpp file until it breaks
+		
 		--PoisonRun: Iterate through all the submissions while only testing for Poison files
+		
 
 There are 3 important files generated for Kerman: **TestGen.cpp, Correct.cpp and Config.txt**
 
