@@ -4,7 +4,7 @@ from threading import Timer
 from sys import argv
 from shutil import copyfile
 from colorama import Fore, Back, Style
-import subprocess, psutil, time, random, atexit
+import subprocess, psutil, time, random, atexit, getpass
 import sys, os, colorama
 
 colorama.init()
@@ -55,17 +55,22 @@ def exit_handler():
 	except: pass
 	
 atexit.register(exit_handler)
+headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.62 Safari/537.36'}
 
 #CHECK ARGS
 NeedToCleanUp = False
 CID = -1
 PN = -1
 StartPage = 1
-EndPage = 10
+EndPage = 5000
 
 BatteringRam = False
 ShowHelp = False
 PoisonRun = False
+
+Session = ""
+Username = ""
+Password = ""
 
 arg = 1
 while arg < len(argv):
@@ -79,6 +84,9 @@ while arg < len(argv):
 		BatteringRam = True
 	elif (argv[arg] == "--PoisonRun"):
 		PoisonRun = True
+	elif (argv[arg] == "-u"):
+		Username = argv[arg + 1]
+		arg += 1
 	elif (argv[arg] == "-c"):
 		CID = argv[arg + 1]
 		arg += 1
@@ -103,11 +111,32 @@ Options:	-c: The Contest ID to analyze (1033, 1056, ...)
 		-p: The Problem Letter to analyze (A, B, C, D, ...)
 		-s: The page on which to start the analysis (1, 2, 3, ...)
 		-e: The page on which to end the analysis (10, 11, 12, ...)
+		-u: Login with an username (for auto hack uploading). You will be prompted for the password
 		-h/--help: Show this help message
 		--BatteringRam: Attack a single, user-given, Suspect.cpp file until it breaks
 		--PoisonRun: Iterate through all the submissions while only testing for Poison files\n""")
 	
 	sys.exit(0)
+
+#LOGIN
+if (Username != ""):
+	PrintInfo ("Using Username: " + Username)
+	loginpage = get("http://codeforces.com/enter?back=%2F", headers=headers)
+	cookies = {'JSESSIONID' : loginpage.cookies['JSESSIONID']}
+	loginpage = loginpage.text
+	loginpage = loginpage[loginpage.find("data-csrf"):]
+	csrftoken = loginpage[loginpage.find("='") + 2:loginpage.find("'>")]
+	
+	check = False
+	while (check == False):
+		Password = getpass.getpass("Password: ")
+		login = post("http://codeforces.com/enter?back=%2F", data = {'csrf_token' : csrftoken, 'action' : 'enter', 'handleOrEmail' : Username, 'password' : Password}, cookies=cookies, headers=headers)
+		if (login.text.find ("Invalid handle") != -1):
+			PrintError ("Wrong Password.")
+		else:
+			check = True
+	
+	PrintOK ("Login Successful.")
 	
 #GET CONFIGS
 Blacklist = {}
@@ -173,10 +202,10 @@ if (PoisonRun):
 	if (PoisonCount == 0):
 		PrintError ("You have no Poison files!")
 		sys.exit(2)
-
+	
 #FANCY INTRO
 PrintFancy ("""KKKKKKKKK    KKKKKKK\nK:::::::K    K:::::K\nK:::::::K    K:::::K\nK:::::::K   K::::::K\nKK::::::K  K:::::KKK    eeeeeeeeeeee    rrrrr   rrrrrrrrr      mmmmmmm    mmmmmmm     aaaaaaaaaaaaa  nnnn  nnnnnnnn\n  K:::::K K:::::K     ee::::::::::::ee  r::::rrr:::::::::r   mm:::::::m  m:::::::mm   a::::::::::::a n:::nn::::::::nn\n  K::::::K:::::K     e::::::eeeee:::::eer:::::::::::::::::r m::::::::::mm::::::::::m  aaaaaaaaa:::::an::::::::::::::nn\n  K:::::::::::K     e::::::e     e:::::err::::::rrrrr::::::rm::::::::::::::::::::::m           a::::ann:::::::::::::::n\n  K:::::::::::K     e:::::::eeeee::::::e r:::::r     r:::::rm:::::mmm::::::mmm:::::m    aaaaaaa:::::a  n:::::nnnn:::::n\n  K::::::K:::::K    e:::::::::::::::::e  r:::::r     rrrrrrrm::::m   m::::m   m::::m  aa::::::::::::a  n::::n    n::::n\n  K:::::K K:::::K   e::::::eeeeeeeeeee   r:::::r            m::::m   m::::m   m::::m a::::aaaa::::::a  n::::n    n::::n\nKK::::::K  K:::::KKKe:::::::e            r:::::r            m::::m   m::::m   m::::ma::::a    a:::::a  n::::n    n::::n\nK:::::::K   K::::::Ke::::::::e           r:::::r            m::::m   m::::m   m::::ma::::a    a:::::a  n::::n    n::::n\nK:::::::K    K:::::K e::::::::eeeeeeee   r:::::r            m::::m   m::::m   m::::ma:::::aaaa::::::a  n::::n    n::::n\nK:::::::K    K:::::K  ee:::::::::::::e   r:::::r            m::::m   m::::m   m::::m a::::::::::aa:::a n::::n    n::::n\nKKKKKKKKK    KKKKKKK    eeeeeeeeeeeeee   rrrrrrr            mmmmmm   mmmmmm   mmmmmm  aaaaaaaaaa  aaaa nnnnnn    nnnnnn""")
-print ("\n                                                       " + Fore.WHITE + "AUTO HACK v2.2")
+print ("\n                                                       " + Fore.WHITE + "AUTO HACK v2.3")
 print ("                                                Made by " + Fore.CYAN + "Loona " + Fore.WHITE + "& " + Fore.MAGENTA + "PinkiePie1189\n")
 
 if (BatteringRam):
@@ -187,7 +216,6 @@ if (PoisonRun):
 	
 PrintOK ("NOW LET'S GET TO " + Fore.GREEN + "WORK" + Fore.WHITE + '\n')
 	
-headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.62 Safari/537.36'}
 FNULL = open(os.devnull, 'w')
 random.seed(time.time())
 
@@ -367,7 +395,19 @@ for Page in range(StartPage, EndPage+1):
 				
 				if (Correct != Suspect and len(Correct) != 0 and len(Suspect) != 0):
 					PrintOK ("FOUND MISMATCH ON POISON FILE " + str(k+1))
-					input("Press Enter to continue...")
+					if (Username != ""):
+						TestFile = open("Poisons/" + str(CID) + str(PN) + "/Poison" + str(k+1), "rb").read()
+						submissionpage = get("http://codeforces.com/contest/" + str(CID) + "/challenge/" + str(ID), cookies=cookies, headers=headers).text
+						submissionpage = submissionpage[submissionpage.find("data-csrf"):]
+						csrftoken = submissionpage[submissionpage.find("='") + 2:submissionpage.find("'>")]
+						hack = post("http://codeforces.com/data/challenge?csrf_token=" + csrftoken, files={'csrf_token': csrftoken, 'action': 'challengeFormSubmitted', 'submissionId': str(ID), 'previousUrl': "http://codeforces.com/contest/" + str(CID) + "/challenge/" + str(ID), 'inputType': 'manual', 'testcase': TestFile, 'testcaseFromFile' : '', 'programTypeId': 50}, cookies=cookies, headers=headers)
+						
+						if (hack.status_code == 200):
+							PrintOK ("Hack Uploaded.")
+						else:
+							PrintWarn ("Something went wrong with the hack upload.")
+					else:
+						input("Press Enter to continue...")
 					check = True
 			
 			#RUN RANDOM TESTS
@@ -389,6 +429,18 @@ for Page in range(StartPage, EndPage+1):
 						PoisonCount += 1
 						copyfile("Test", "Poisons/" + str(CID) + str(PN) + "/Poison" + str(PoisonCount))
 						PrintOK ("FOUND MISMATCH. CHECK NEW POISON FILE " + str(PoisonCount))
-						input("Press Enter to continue...")
+						if (Username != ""):
+							TestFile = open("Test", "rb").read()
+							submissionpage = get("http://codeforces.com/contest/" + str(CID) + "/challenge/" + str(ID), cookies=cookies, headers=headers).text
+							submissionpage = submissionpage[submissionpage.find("data-csrf"):]
+							csrftoken = submissionpage[submissionpage.find("='") + 2:submissionpage.find("'>")]
+							hack = post("http://codeforces.com/data/challenge?csrf_token=" + csrftoken, files={'csrf_token': csrftoken, 'action': 'challengeFormSubmitted', 'submissionId': str(ID), 'previousUrl': "http://codeforces.com/contest/" + str(CID) + "/challenge/" + str(ID), 'inputType': 'manual', 'testcase': TestFile, 'testcaseFromFile' : '', 'programTypeId': 50}, cookies=cookies, headers=headers)
+							
+							if (hack.status_code == 200):
+								PrintOK ("Hack Uploaded.")
+							else:
+								PrintWarn ("Something went wrong with the hack upload.")
+						else:
+							input("Press Enter to continue...")
 						check = True
 		cnt += 1
