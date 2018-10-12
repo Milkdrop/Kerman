@@ -13,7 +13,7 @@ It should work for both Python 2 and Python 3.
 
 Usage: Kerman.py [-c <ContestID>] [-p <ProblemLetter>]
 	
-Options:
+    Options:
 
     -c: The Contest ID to analyze (1033, 1056, ...)
     
