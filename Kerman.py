@@ -37,19 +37,15 @@ def exit_handler():
 	if (NeedToCleanUp):
 		PrintInfo ("Cleaning up...")
 	
-	try: os.remove("SuspectOut")
-	except: pass
-	try: os.remove("CorrectOut")
-	except: pass
 	try: os.remove("TestGen")
 	except: pass
 	try: os.remove("TestGen.exe")
 	except: pass
 	try: os.remove("Suspect")
 	except: pass
-	try: os.remove("Correct")
-	except: pass
 	try: os.remove("Suspect.exe")
+	except: pass
+	try: os.remove("Correct")
 	except: pass
 	try: os.remove("Correct.exe")
 	except: pass
@@ -291,10 +287,8 @@ if (BatteringRam):
 	for k in range (PoisonCount):
 		if (check):
 			break
-		os.system("(Correct < Poisons/" + str(CID) + str(PN) + "/Poison" + str(k+1) + ") > CorrectOut")
-		os.system("(Suspect < Poisons/" + str(CID) + str(PN) + "/Poison" + str(k+1) + ") > SuspectOut")
-		Correct = open("CorrectOut", "r").read().strip()
-		Suspect = open("SuspectOut", "r").read().strip()
+		Correct = os.popen("Correct < Poisons/" + str(CID) + str(PN) + "/Poison" + str(k+1)).read().strip()
+		Suspect = os.popen("Suspect < Poisons/" + str(CID) + str(PN) + "/Poison" + str(k+1)).read().strip()
 				
 		if (Correct != Suspect and len(Correct) != 0 and len(Suspect) != 0):
 			PrintOK ("FOUND MISMATCH ON POISON FILE " + str(k+1))
@@ -309,11 +303,8 @@ if (BatteringRam):
 			PrintInfo (str(k + 1) + " TESTS PASSED.")
 					
 		os.system("(TestGen " + str(random.randint(0, 5000000)) + ") > Test")
-		os.system("(Correct < Test) > CorrectOut")
-		os.system("(Suspect < Test) > SuspectOut")
-				
-		Correct = open("CorrectOut", "r").read().strip()
-		Suspect = open("SuspectOut", "r").read().strip()
+		Correct = os.popen("Correct < Test").read().strip()
+		Suspect = os.popen("Suspect < Test").read().strip()
 				
 		if (Correct != Suspect and len(Correct) != 0 and len(Suspect) != 0):
 			PoisonCount += 1
@@ -388,10 +379,9 @@ for Page in range(StartPage, EndPage+1):
 			for k in range (PoisonCount):
 				if (check):
 					break
-				os.system("(Correct < Poisons/" + str(CID) + str(PN) + "/Poison" + str(k+1) + ") > CorrectOut")
-				os.system("(Suspect < Poisons/" + str(CID) + str(PN) + "/Poison" + str(k+1) + ") > SuspectOut")
-				Correct = open("CorrectOut", "r").read().strip()
-				Suspect = open("SuspectOut", "r").read().strip()
+					
+				Correct = os.popen("Correct < Poisons/" + str(CID) + str(PN) + "/Poison" + str(k+1)).read().strip()
+				Suspect = os.popen("Suspect < Poisons/" + str(CID) + str(PN) + "/Poison" + str(k+1)).read().strip()
 				
 				if (Correct != Suspect and len(Correct) != 0 and len(Suspect) != 0):
 					PrintOK ("FOUND MISMATCH ON POISON FILE " + str(k+1))
@@ -419,11 +409,8 @@ for Page in range(StartPage, EndPage+1):
 						PrintInfo (str(k + 1) + " TESTS PASSED.")
 						
 					os.system("(TestGen " + str(random.randint(0, 5000000)) + ") > Test")
-					os.system("(Correct < Test) > CorrectOut")
-					os.system("(Suspect < Test) > SuspectOut")
-					
-					Correct = open("CorrectOut", "r").read().strip()
-					Suspect = open("SuspectOut", "r").read().strip()
+					Correct = os.popen("Correct < Test").read().strip()
+					Suspect = os.popen("Suspect < Test").read().strip()
 					
 					if (Correct != Suspect and len(Correct) != 0 and len(Suspect) != 0):
 						PoisonCount += 1
